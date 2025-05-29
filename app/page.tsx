@@ -1,102 +1,93 @@
-export default function Page() {
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import QuestionForm from "@/components/question-form"
+import AdBanner from "@/components/ad-banner"
+import { Shield, MessageCircle, Heart, Brain } from "lucide-react"
+
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to Your Whop App
-          </h1>
-          <p className="text-lg text-gray-600">
-            Follow these steps to get started with your Whop application
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 text-white mr-3">
-                1
-              </span>
-              Create your Whop app
-            </h2>
-            <p className="text-gray-600 ml-11">
-              Go to your{" "}
-              <a
-                href="https://whop.com/dashboard"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:text-blue-600 underline"
-              >
-                Whop Dashboard
-              </a>{" "}
-              and create a new app in the Developer section.
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <div className="text-6xl mb-6">🕵️</div>
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">Ask Me Anything</h1>
+            <p className="text-xl text-gray-600 mb-8">
+              The questions you'd never ask publicly. Completely anonymous. No judgment.
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 text-white mr-3">
-                2
-              </span>
-              Set up environment variables
-            </h2>
-            <p className="text-gray-600 ml-11 mb-4">
-              Copy the .env file from your dashboard and create a new .env file
-              in your project root. This will contain all the necessary
-              environment variables for your app.
-            </p>
-            {process.env.NODE_ENV === "development" && (
-              <div className="text-gray-600 ml-11">
-                <code>
-                  WHOP_API_KEY= {process.env.WHOP_API_KEY} <br />
-                  WHOP_AGENT_USER_ID= {process.env.WHOP_AGENT_USER_ID} <br />
-                  WHOP_APP_ID= {process.env.WHOP_APP_ID}
-                </code>
+          {/* What You Can Ask Section */}
+          <Card className="mb-8 border-0 shadow-sm">
+            <CardHeader className="text-center pb-4">
+              <CardTitle className="text-2xl text-gray-900">What can you ask?</CardTitle>
+              <CardDescription className="text-base">
+                This is your safe space to ask anything you've been curious about but never felt comfortable asking
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-lg">
+                  <MessageCircle className="h-5 w-5 text-orange-500 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Personal Advice</h3>
+                    <p className="text-sm text-gray-600">Relationship, career, life decisions you're struggling with</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-lg">
+                  <Brain className="h-5 w-5 text-orange-500 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Controversial Questions</h3>
+                    <p className="text-sm text-gray-600">Hot takes, unpopular opinions, sensitive topics</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-lg">
+                  <Heart className="h-5 w-5 text-orange-500 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Vulnerable Moments</h3>
+                    <p className="text-sm text-gray-600">Mental health, insecurities, fears you don't share</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-orange-50 rounded-lg">
+                  <Shield className="h-5 w-5 text-orange-500 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Honest Feedback</h3>
+                    <p className="text-sm text-gray-600">Roast my decisions, critique my work, brutal honesty</p>
+                  </div>
+                </div>
               </div>
-            )}
+            </CardContent>
+          </Card>
+
+          {/* Question Form */}
+          <Card className="mb-8 shadow-orange border-0">
+            <CardHeader className="text-center">
+              <CardTitle className="text-xl text-gray-900">Ask Your Anonymous Question</CardTitle>
+              <CardDescription>
+                Your identity is completely protected. No tracking, no data collection, no way to trace it back to you.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-8">
+              <QuestionForm />
+            </CardContent>
+          </Card>
+
+          {/* Ad Banner */}
+          <div className="mb-8">
+            <AdBanner />
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 text-white mr-3">
-                3
-              </span>
-              Install your app into your whop
-            </h2>
-            <p className="text-gray-600 ml-11">
-              {process.env.WHOP_APP_ID ? (
-                <a
-                  href={`https://whop.com/apps/${process.env.WHOP_APP_ID}/install`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-600 underline"
-                >
-                  Click here to install your app
-                </a>
-              ) : (
-                <span className="text-amber-600">
-                  Please set your environment variables to see the installation
-                  link
-                </span>
-              )}
-            </p>
+          {/* Privacy Notice */}
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 p-4 bg-green-50 rounded-lg border border-green-100 mb-4">
+              <Shield className="h-5 w-5 text-green-600" />
+              <p className="text-sm text-green-700 font-medium">
+                100% Anonymous - No IP tracking, no cookies, no way to identify you
+              </p>
+            </div>
           </div>
-        </div>
-
-        <div className="mt-12 text-center text-sm text-gray-500">
-          <p>
-            Need help? Visit the{" "}
-            <a
-              href="https://dev.whop.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:text-blue-600 underline"
-            >
-              Whop Documentation
-            </a>
-          </p>
         </div>
       </div>
     </div>
-  );
+  )
 }
