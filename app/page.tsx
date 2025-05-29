@@ -10,7 +10,7 @@ export default function HomePage() {
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="text-6xl mb-6">🕵️</div>
+            {/* <div className="text-6xl mb-6">🕵️</div> */}
             <h1 className="text-5xl font-bold text-gray-900 mb-4">Ask Me Anything</h1>
             <p className="text-xl text-gray-600 mb-8">
               The questions you'd never ask publicly. Completely anonymous. No judgment.

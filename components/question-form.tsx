@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { submitQuestion } from "@/lib/actions"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { Send, Shield } from "lucide-react"
 
 export default function QuestionForm() {
@@ -22,20 +22,13 @@ export default function QuestionForm() {
       formData.append("question", question)
 
       await submitQuestion(formData)
-      toast({
-        title: "Anonymous question sent! 🕵️",
-        description: "Your question has been submitted anonymously and will be reviewed.",
-      })
+      toast("Anonymous question sent! 🕵️")
 
       // Reset the form
       setQuestion("")
       setCharCount(0)
     } catch (error) {
-      toast({
-        title: "Oops! Something went wrong 😕",
-        description: "There was an error submitting your anonymous question. Please try again.",
-        variant: "destructive",
-      })
+      toast("Oops! Something went wrong 😕")
     } finally {
       setIsSubmitting(false)
     }
