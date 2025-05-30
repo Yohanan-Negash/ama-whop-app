@@ -118,21 +118,21 @@ export default function PendingQuestions({ withScrollArea }: PendingQuestionsPro
   }
 
   const content = (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {pendingQuestions.map((question) => (
-        <Card key={question.id} className="border bg-card border-orange-200 rounded-lg shadow-sm px-4 py-3 max-w-[700px] mx-auto">
+        <Card key={question.id} className="border bg-card border-orange-200 rounded-lg shadow-sm px-2 sm:px-4 py-2 sm:py-3 w-full max-w-full sm:max-w-[700px] mx-auto">
           <CardContent className="p-0">
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground text-base mb-1">{question.content}</p>
+                <p className="font-semibold text-foreground text-sm sm:text-base mb-1 break-words">{question.content}</p>
                 <span className="block text-xs text-muted-foreground mt-0.5">{question.createdAt}</span>
               </div>
-              <div className="flex gap-1 ml-4 self-center">
+              <div className="flex gap-2 mt-2 sm:mt-0 ml-0 sm:ml-4 self-end sm:self-center">
                 <Button
                   size="icon"
                   onClick={() => handleDeleteClick(question.id)}
                   disabled={processingIds.includes(question.id)}
-                  className="border-red-300 text-red-600 hover:bg-red-200 hover:text-red-700 rounded-full p-2 opacity-70 hover:opacity-100"
+                  className="border-red-300 text-red-600 hover:bg-red-200 hover:text-red-700 rounded-full p-2 h-9 w-9 sm:h-8 sm:w-8 opacity-80 hover:opacity-100"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -140,7 +140,7 @@ export default function PendingQuestions({ withScrollArea }: PendingQuestionsPro
                   size="sm"
                   onClick={() => handleApprove(question.id)}
                   disabled={processingIds.includes(question.id)}
-                  className="bg-green-500 hover:bg-green-600 text-white rounded px-3 py-2 text-sm font-medium transition-colors opacity-70 hover:opacity-100"
+                  className="bg-green-500 hover:bg-green-600 text-white rounded px-3 py-2 text-xs sm:text-sm font-medium transition-colors opacity-90 hover:opacity-100 min-w-[110px]"
                 >
                   Add to Approved
                 </Button>
