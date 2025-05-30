@@ -21,12 +21,13 @@ export default function AdBanner() {
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </Button>
-      <CardContent className="p-6 flex flex-col items-center justify-center min-h-[120px]">
-        <p className="text-base font-medium mb-3 text-gray-700">Advertisement</p>
-        <div className="w-full h-16 bg-gray-50 rounded-lg flex items-center justify-center mb-3 border border-gray-100">
-          <p className="text-sm text-gray-400">Your Ad Here</p>
+      <CardContent className="p-4 flex flex-col items-center justify-center min-h-[120px]">
+        <div className="w-full max-w-xs bg-orange-50 border border-orange-200 rounded-lg flex flex-col items-center p-4 gap-2">
+          <div className="w-10 h-10 bg-orange-200 rounded-full flex items-center justify-center font-bold text-orange-600 text-lg">AD</div>
+          <div className="text-sm font-semibold text-orange-700">Sample Brand Headline</div>
+          <div className="text-xs text-gray-500 text-center">This is a mock ad. Your brand, product, or service could be featured here with a call to action.</div>
+          <button className="mt-2 px-4 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-xs font-medium">Learn More</button>
         </div>
-        <p className="text-xs text-gray-400 text-center">Sponsored Content</p>
       </CardContent>
     </Card>
   )

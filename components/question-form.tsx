@@ -11,7 +11,7 @@ export default function QuestionForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [question, setQuestion] = useState("")
   const [charCount, setCharCount] = useState(0)
-  const MAX_CHARS = 500
+  const MAX_CHARS = 100
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -72,7 +72,7 @@ export default function QuestionForm() {
         <Button
           type="submit"
           disabled={isSubmitting || question.trim() === ""}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 text-base font-medium hover-lift"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white  p-6"
         >
           {isSubmitting ? (
             "Sending anonymously..."
