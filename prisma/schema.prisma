@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Question {
+	id String @id @default(cuid())
+	whopAdminId String
+	experienceId String
+	question String 
+	status QuestionStatus @default(PENDING)
+	createdAt DateTime @default(now())
+}
+
+enum QuestionStatus {
+	PENDING
+	APPROVED
+}
+
+

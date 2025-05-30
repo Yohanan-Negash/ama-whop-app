@@ -1,51 +1,119 @@
 import { whopApi } from "@/lib/whop-api";
 import { verifyUserToken } from "@whop/api";
 import { headers } from "next/headers";
+import QuestionForm from "@/components/question-form";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import AdBanner from "@/components/ad-banner";
+import { Shield, MessageCircle, Heart, Brain, ArrowLeft } from "lucide-react";
 
 export default async function ExperiencePage({
-  params,
+	params,
 }: {
-  params: Promise<{ experienceId: string }>;
+	params: Promise<{ experienceId: string }>;
 }) {
-  // The headers contains the user token
-  const headersList = await headers();
+	const headersList = await headers();
+	const { experienceId } = await params;
+	const { userId } = await verifyUserToken(headersList);
+	const result = await whopApi.checkIfUserHasAccessToExperience({
+		userId,
+		experienceId,
+	});
+	const user = (await whopApi.getUser({ userId })).publicUser;
+	const experience = (await whopApi.getExperience({ experienceId })).experience;
+	const { accessLevel } = result.hasAccessToExperience;
 
-  // The experienceId is a path param
-  const { experienceId } = await params;
+	return (
+		<div className="min-h-screen bg-gradient-to-br from-orange-50 to-white px-2">
+			<div className="w-full flex flex-col items-center">
+				{accessLevel === "admin" && (
+					<div className="w-full max-w-2xl flex justify-end mb-2">
+						<Link href={`/experiences/${experienceId}/admin`}>
+							<Button
+								size="sm"
+								className="text-xs p-4 m-2 bg-amber-600 hover:bg-amber-700"
+							>
+								Admin: Submitted Questions
+							</Button>
+						</Link>
+					</div>
+				)}
+				<div className="w-full max-w-2xl flex flex-col gap-3 mt-2">
+					<div className="text-center">
+						<h1 className="text-2xl font-semibold text-gray-900 mb-1">
+							Ask Me Anything
+						</h1>
+						<p className="text-sm text-gray-600 mb-2">
+							100% anonymous. No judgment. No tracking. Ask what you really want
+							to know.
+						</p>
+					</div>
 
-  // The user token is in the headers
-  const { userId } = await verifyUserToken(headersList);
-
-  const result = await whopApi.checkIfUserHasAccessToExperience({
-    userId,
-    experienceId,
-  });
-
-  const user = (await whopApi.getUser({ userId })).publicUser;
-  const experience = (await whopApi.getExperience({ experienceId })).experience;
-
-  // Either: 'admin' | 'customer' | 'no_access';
-  // 'admin' means the user is an admin of the whop, such as an owner or moderator
-  // 'customer' means the user is a common member in this whop
-  // 'no_access' means the user does not have access to the whop
-  const { accessLevel } = result.hasAccessToExperience;
-
-  return (
-    <div className="flex justify-center items-center h-screen px-8">
-      <h1 className="text-xl">
-        Hi <strong>{user.name}</strong>, you{" "}
-        <strong>
-          {result.hasAccessToExperience.hasAccess ? "have" : "do not have"}{" "}
-          access
-        </strong>{" "}
-        to this experience. Your access level to this whop is:{" "}
-        <strong>{accessLevel}</strong>. <br />
-        <br />
-        Your user ID is <strong>{userId}</strong> and your username is{" "}
-        <strong>@{user.username}</strong>.<br />
-        <br />
-        You are viewing the experience: <strong>{experience.name}</strong>
-      </h1>
-    </div>
-  );
+					<div className="border-0 shadow-sm rounded-lg bg-white">
+						<div className="text-center pb-1 pt-3">
+							<h2 className="text-base text-gray-900 font-semibold">
+								What can you ask?
+							</h2>
+							<p className="text-xs text-gray-600">
+								Your safe space for honest, vulnerable, or even controversial
+								questions.
+							</p>
+						</div>
+						<div className="grid gap-2 md:grid-cols-2 p-3">
+							<div className="flex items-start gap-2 p-2 bg-orange-50 rounded-lg">
+								<MessageCircle className="h-4 w-4 text-orange-500 mt-0.5" />
+								<div>
+									<h3 className="font-medium text-gray-900 mb-0.5 text-xs">
+										Personal Advice
+									</h3>
+									<p className="text-[10px] text-gray-600">
+										Life, career, or relationship questions
+									</p>
+								</div>
+							</div>
+							<div className="flex items-start gap-2 p-2 bg-orange-50 rounded-lg">
+								<Brain className="h-4 w-4 text-orange-500 mt-0.5" />
+								<div>
+									<h3 className="font-medium text-gray-900 mb-0.5 text-xs">
+										Controversial Topics
+									</h3>
+									<p className="text-[10px] text-gray-600">
+										Hot takes, unpopular opinions
+									</p>
+								</div>
+							</div>
+							<div className="flex items-start gap-2 p-2 bg-orange-50 rounded-lg">
+								<Heart className="h-4 w-4 text-orange-500 mt-0.5" />
+								<div>
+									<h3 className="font-medium text-gray-900 mb-0.5 text-xs">
+										Vulnerable Moments
+									</h3>
+									<p className="text-[10px] text-gray-600">
+										Mental health, insecurities, fears
+									</p>
+								</div>
+							</div>
+							<div className="flex items-start gap-2 p-2 bg-orange-50 rounded-lg">
+								<Shield className="h-4 w-4 text-orange-500 mt-0.5" />
+								<div>
+									<h3 className="font-medium text-gray-900 mb-0.5 text-xs">
+										Honest Feedback
+									</h3>
+									<p className="text-[10px] text-gray-600">
+										Roast my decisions, critique my work
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div className="w-full max-w-2xl flex flex-col items-stretch mb-2">
+					<QuestionForm experienceId={experienceId} />
+					<div className="flex justify-center mt-2">
+						<AdBanner />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }
