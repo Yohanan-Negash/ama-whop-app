@@ -25,20 +25,22 @@ export async function approveQuestion(id: string) {
   return { success: true }
 }
 
-export async function rejectandDeleteQuestion(id: string) {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+export async function deleteQuestion(id: string) {
+	// Simulate network delay
+	await new Promise((resolve) => setTimeout(resolve, 1000))
+ 
+	// In a real app, you would permanently delete the question from the database
+	return { success: true }
+ }
+ 
+ export async function pushToForums(id: string) {
+	// Simulate network delay
+	await new Promise((resolve) => setTimeout(resolve, 1000))
+ 
+	// In a real app, this would call the Whop Forums API to create a new post
+	return { success: true }
+ }
 
-  // In a real app, you would update the question status in the database
-  return { success: true }
-}
 
-export async function pushToForums(id: string) {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  // In a real app, this would call the Whop Forums API to create a new post
-  return { success: true }
-}
 
 
