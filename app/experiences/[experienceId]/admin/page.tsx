@@ -85,7 +85,7 @@ export default async function AdminPage({
 										</div>
 									</CardHeader>
 									<CardContent className="p-0">
-										<PendingQuestions />
+										<PendingQuestions experienceId={experienceId} />
 									</CardContent>
 								</Card>
 							</ScrollArea>
@@ -103,7 +103,7 @@ export default async function AdminPage({
 										</div>
 									</CardHeader>
 									<CardContent className="p-0">
-										<ApprovedQuestions />
+										<ApprovedQuestions experienceId={experienceId} />
 									</CardContent>
 								</Card>
 							</ScrollArea>

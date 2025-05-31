@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Trash2 } from "lucide-react";
-import { approveQuestion, deleteQuestion } from "@/lib/actions";
+import {
+	approveQuestion,
+	deleteQuestion,
+	getPendingQuestions,
+} from "@/lib/actions";
 import { toast } from "sonner";
 import {
 	AlertDialog,
@@ -17,63 +21,66 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-// Mock data - in a real app, this would come from your database
-const mockPendingQuestions = [
-	{
-		id: "1",
-		content:
-			"Your content strategy is honestly pretty basic. Why do you think you deserve the following you have?",
-		createdAt: "2 hours ago",
-	},
-	{
-		id: "2",
-		content:
-			"How much money do you actually make per month? Everyone always asks but you never give real numbers.",
-		createdAt: "3 hours ago",
-	},
-	{
-		id: "3",
-		content:
-			"Do you ever feel like a fraud? Like everyone thinks you're more successful than you actually are?",
-		createdAt: "5 hours ago",
-	},
-	{
-		id: "4",
-		content:
-			"Your pricing seems way too high for what you offer. How do you justify charging that much?",
-		createdAt: "1 day ago",
-	},
-	{
-		id: "5",
-		content:
-			"What's the dumbest business decision you've made that you're too embarrassed to admit publicly?",
-		createdAt: "1 day ago",
-	},
-	{
-		id: "6",
-		content:
-			"Be honest - how many of your 'success stories' are actually just luck and good timing?",
-		createdAt: "2 days ago",
-	},
-];
+import { formatDistanceToNow } from "date-fns";
 
 interface PendingQuestionsProps {
+	experienceId: string;
 	withScrollArea?: boolean;
 }
 
+interface PendingQuestion {
+	id: string;
+	question: string;
+	createdAt: string;
+}
+
 export default function PendingQuestions({
+	experienceId,
 	withScrollArea,
 }: PendingQuestionsProps) {
-	const [pendingQuestions, setPendingQuestions] =
-		useState(mockPendingQuestions);
+	const [pendingQuestions, setPendingQuestions] = useState<PendingQuestion[]>(
+		[],
+	);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 	const [processingIds, setProcessingIds] = useState<string[]>([]);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 
+	useEffect(() => {
+		async function fetchQuestions() {
+			setLoading(true);
+			setError(null);
+			try {
+				const result = await getPendingQuestions(experienceId);
+				if (result && "error" in result) setError(result.error);
+				else
+					setPendingQuestions(
+						(
+							result as {
+								id: string;
+								question: string;
+								createdAt: string | Date;
+								pushedToForum: boolean;
+							}[]
+						).map((q) => ({
+							...q,
+							createdAt:
+								typeof q.createdAt === "string"
+									? q.createdAt
+									: q.createdAt.toISOString(),
+						})),
+					);
+			} catch (err) {
+				setError("Failed to load questions");
+			}
+			setLoading(false);
+		}
+		fetchQuestions();
+	}, [experienceId]);
+
 	async function handleApprove(id: string) {
 		setProcessingIds((prev) => [...prev, id]);
-
 		try {
 			await approveQuestion(id);
 			setPendingQuestions((prev) => prev.filter((q) => q.id !== id));
@@ -92,9 +99,7 @@ export default function PendingQuestions({
 
 	async function handleConfirmDelete() {
 		if (!questionToDelete) return;
-
 		setProcessingIds((prev) => [...prev, questionToDelete]);
-
 		try {
 			await deleteQuestion(questionToDelete);
 			setPendingQuestions((prev) =>
@@ -110,6 +115,14 @@ export default function PendingQuestions({
 			setDeleteDialogOpen(false);
 			setQuestionToDelete(null);
 		}
+	}
+
+	if (loading) {
+		return <div className="text-center py-12 text-gray-500">Loading...</div>;
+	}
+
+	if (error) {
+		return <div className="text-center py-12 text-red-500">{error}</div>;
 	}
 
 	if (pendingQuestions.length === 0) {
@@ -132,10 +145,12 @@ export default function PendingQuestions({
 						<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
 							<div className="flex-1 min-w-0">
 								<p className="font-semibold text-foreground text-sm sm:text-base mb-1 break-words">
-									{question.content}
+									{question.question}
 								</p>
 								<span className="block text-xs text-muted-foreground mt-0.5">
-									{question.createdAt}
+									{formatDistanceToNow(new Date(question.createdAt), {
+										addSuffix: true,
+									})}
 								</span>
 							</div>
 							<div className="flex gap-2 mt-2 sm:mt-0 ml-0 sm:ml-4 self-end sm:self-center">

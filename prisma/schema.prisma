@@ -10,11 +10,11 @@ datasource db {
 
 model Question {
 	id String @id @default(cuid())
-	whopAdminId String
 	experienceId String
 	question String 
 	status QuestionStatus @default(PENDING)
 	createdAt DateTime @default(now())
+	pushedToForum Boolean @default(false)
 }
 
 enum QuestionStatus {
