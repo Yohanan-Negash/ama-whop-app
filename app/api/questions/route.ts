@@ -5,6 +5,9 @@ import { verifyUserToken } from "@/lib/whop-api";
 import { whopApi } from "@/lib/whop-api";
 
 export async function POST(req: NextRequest) {
+	const agentUserId = process.env.WHOP_AGENT_USER_ID;
+	if (!agentUserId) throw new Error("WHOP_AGENT_USER_ID missing");
+
 	const { action, experienceId, id, question, questionText } = await req.json();
 	try {
 		const headersList = req.headers;
@@ -88,15 +91,13 @@ export async function POST(req: NextRequest) {
 			});
 			if (hasAccess.hasAccessToExperience.accessLevel !== "admin")
 				return NextResponse.json({ error: "Not authorized" }, { status: 403 });
-			const forum = await whopApi
-				.withUser(process.env.WHOP_AGENT_USER_ID)
-				.findOrCreateForum({
-					input: {
-						experienceId: questionObj.experienceId,
-						name: "AMA Forum",
-						whoCanPost: "admins",
-					},
-				});
+			const forum = await whopApi.withUser(agentUserId).findOrCreateForum({
+				input: {
+					experienceId: questionObj.experienceId,
+					name: "AMA Forum",
+					whoCanPost: "admins",
+				},
+			});
 			const forumId = forum.createForum?.id;
 			if (!forumId) {
 				console.log("No forum ID");
@@ -105,7 +106,7 @@ export async function POST(req: NextRequest) {
 					{ status: 500 },
 				);
 			}
-			await whopApi.withUser(process.env.WHOP_AGENT_USER_ID).createForumPost({
+			await whopApi.withUser(agentUserId).createForumPost({
 				input: {
 					forumExperienceId: forumId,
 					title: "Anonymous AMA Question",
