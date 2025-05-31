@@ -5,7 +5,7 @@ import QuestionForm from "@/components/question-form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import AdBanner from "@/components/ad-banner";
-import { Shield, MessageCircle, Heart, Brain, ArrowLeft } from "lucide-react";
+import { Shield, MessageCircle, Heart, Brain } from "lucide-react";
 
 export default async function ExperiencePage({
 	params,
@@ -24,94 +24,105 @@ export default async function ExperiencePage({
 	const { accessLevel } = result.hasAccessToExperience;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-orange-50 to-white px-2 sm:px-4">
-			<div className="w-full flex flex-col items-center">
-				{accessLevel === "admin" && (
-					<div className="w-full max-w-2xl flex justify-end mb-2 px-1 sm:px-0">
-						<Link href={`/experiences/${experienceId}/admin`}>
-							<Button
-								size="sm"
-								className="text-xs p-2 sm:p-4 m-1 sm:m-2 bg-amber-600 hover:bg-amber-700 w-full sm:w-auto"
-							>
-								Admin: Submitted Questions
-							</Button>
-						</Link>
-					</div>
-				)}
-				<div className="w-full max-w-2xl flex flex-col gap-3 mt-2 px-1 sm:px-0">
-					<div className="text-center">
-						<h1 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-1">
-							Ask Me Anything
-						</h1>
-						<p className="text-sm sm:text-base text-gray-600 mb-2">
-							100% anonymous. No judgment. No tracking. Ask what you really want
-							to know.
-						</p>
-					</div>
-
-					<div className="border-0 shadow-sm rounded-lg bg-white">
-						<div className="text-center pb-1 pt-3">
-							<h2 className="text-base sm:text-lg text-gray-900 font-semibold">
-								What can you ask?
-							</h2>
-							<p className="text-xs sm:text-sm text-gray-600">
-								Your safe space for honest, vulnerable, or even controversial
-								questions.
-							</p>
+		<div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
+			{/* Admin Panel */}
+			{accessLevel === "admin" && (
+				<div className="bg-white border-b border-orange-100">
+					<div className="max-w-2xl mx-auto px-4 py-2">
+						<div className="flex items-center justify-between">
+							<span className="text-sm font-medium text-gray-700">
+								Admin Panel
+							</span>
+							<Link href={`/experiences/${experienceId}/admin`}>
+								<Button
+									size="sm"
+									className="text-xs bg-amber-600 hover:bg-amber-700"
+								>
+									<Shield className="h-3 w-3 mr-1" />
+									View Questions
+								</Button>
+							</Link>
 						</div>
-						<div className="grid gap-2 grid-cols-1 sm:grid-cols-2 p-2 sm:p-3">
-							<div className="flex items-start gap-2 p-2 bg-orange-50 rounded-lg">
-								<MessageCircle className="h-4 w-4 text-orange-500 mt-0.5" />
+					</div>
+				</div>
+			)}
+
+			<div className="max-w-2xl mx-auto px-4 py-6">
+				{/* Header */}
+				<div className="text-center mb-6">
+					<h1 className="text-2xl font-bold text-gray-900 mb-2">
+						Ask Me Anything
+					</h1>
+					<p className="text-sm text-gray-600">
+						100% anonymous. Ask what you really want to know.
+					</p>
+				</div>
+
+				{/* Categories */}
+				<div className="bg-white rounded-lg border border-orange-100 mb-6">
+					<div className="p-4">
+						<div className="grid gap-3 grid-cols-2">
+							<div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg">
+								<MessageCircle className="h-4 w-4 text-orange-500 flex-shrink-0" />
 								<div>
-									<h3 className="font-medium text-gray-900 mb-0.5 text-xs sm:text-sm">
+									<h3 className="text-xs font-semibold text-gray-900">
 										Personal Advice
 									</h3>
-									<p className="text-[10px] sm:text-xs text-gray-600">
-										Life, career, or relationship questions
+									<p className="text-[10px] text-gray-500">
+										Life, career, relationships
 									</p>
 								</div>
 							</div>
-							<div className="flex items-start gap-2 p-2 bg-orange-50 rounded-lg">
-								<Brain className="h-4 w-4 text-orange-500 mt-0.5" />
+
+							<div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg">
+								<Brain className="h-4 w-4 text-orange-500 flex-shrink-0" />
 								<div>
-									<h3 className="font-medium text-gray-900 mb-0.5 text-xs sm:text-sm">
-										Controversial Topics
+									<h3 className="text-xs font-semibold text-gray-900">
+										Hot Takes
 									</h3>
-									<p className="text-[10px] sm:text-xs text-gray-600">
-										Hot takes, unpopular opinions
+									<p className="text-[10px] text-gray-500">
+										Controversial opinions
 									</p>
 								</div>
 							</div>
-							<div className="flex items-start gap-2 p-2 bg-orange-50 rounded-lg">
-								<Heart className="h-4 w-4 text-orange-500 mt-0.5" />
+
+							<div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg">
+								<Heart className="h-4 w-4 text-orange-500 flex-shrink-0" />
 								<div>
-									<h3 className="font-medium text-gray-900 mb-0.5 text-xs sm:text-sm">
-										Vulnerable Moments
+									<h3 className="text-xs font-semibold text-gray-900">
+										Vulnerable
 									</h3>
-									<p className="text-[10px] sm:text-xs text-gray-600">
-										Mental health, insecurities, fears
+									<p className="text-[10px] text-gray-500">
+										Mental health, fears
 									</p>
 								</div>
 							</div>
-							<div className="flex items-start gap-2 p-2 bg-orange-50 rounded-lg">
-								<Shield className="h-4 w-4 text-orange-500 mt-0.5" />
+
+							<div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg">
+								<Shield className="h-4 w-4 text-orange-500 flex-shrink-0" />
 								<div>
-									<h3 className="font-medium text-gray-900 mb-0.5 text-xs sm:text-sm">
+									<h3 className="text-xs font-semibold text-gray-900">
 										Honest Feedback
 									</h3>
-									<p className="text-[10px] sm:text-xs text-gray-600">
-										Roast my decisions, critique my work
+									<p className="text-[10px] text-gray-500">
+										Critique my work/decisions
 									</p>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div className="w-full max-w-2xl flex flex-col items-stretch mb-2 px-1 sm:px-0">
-					<QuestionForm experienceId={experienceId} />
-					<div className="flex justify-center mt-2">
-						<AdBanner />
+
+				{/* Question Form */}
+				<div className="bg-white rounded-lg border border-orange-100 mb-6">
+					<div className="p-4">
+						<QuestionForm experienceId={experienceId} />
 					</div>
+				</div>
+
+				{/* Ad Banner */}
+				<div className="flex justify-center">
+					<AdBanner />
 				</div>
 			</div>
 		</div>

@@ -36,7 +36,7 @@ export default async function AdminPage({
 	return (
 		<div className="min-h-screen bg-background">
 			<div className="container mx-auto px-1 sm:px-2 py-4 sm:py-6">
-				<div className="max-w-4xl mx-auto mb-8">
+				<div className="max-w-4xl mx-auto mb-4">
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
 						<div className="flex items-center gap-2 sm:gap-3 w-full">
 							<Link href={`/experiences/${experienceId}`}>
@@ -71,7 +71,7 @@ export default async function AdminPage({
 							</TabsTrigger>
 						</TabsList>
 						<TabsContent value="pending">
-							<ScrollArea className="h-[60vh] min-h-[320px] rounded-md border-none">
+							<ScrollArea className="h-[65vh] min-h-[400px] rounded-md border-none">
 								<Card className="border-0 shadow-sm bg-card rounded-md p-1 sm:p-2 w-full">
 									<CardHeader className="pb-2">
 										<CardTitle className="text-sm sm:text-lg text-foreground text-center">
@@ -89,7 +89,7 @@ export default async function AdminPage({
 							</ScrollArea>
 						</TabsContent>
 						<TabsContent value="approved">
-							<ScrollArea className="h-[60vh] min-h-[320px] rounded-md border-none">
+							<ScrollArea className="h-[65vh] min-h-[400px] rounded-md border-none">
 								<Card className="border-0 shadow-sm bg-card rounded-md p-1 sm:p-2 w-full">
 									<CardHeader className="pb-2">
 										<CardTitle className="text-sm sm:text-lg text-foreground text-center">
