@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import AdminStats from "@/components/admin/admin-stats";
+import { AdminStats } from "@/components/admin/admin-stats";
 import PendingQuestions from "@/components/admin/pending-questions";
 import ApprovedQuestions from "@/components/admin/approved-questions";
 import { whopApi } from "@/lib/whop-api";
@@ -25,15 +25,13 @@ export default async function AdminPage({
 		experienceId,
 	});
 
-	const user = (await whopApi.getUser({ userId })).publicUser;
+	const user = await whopApi.getUser({ userId: userId });
 
 	const { accessLevel } = await result.hasAccessToExperience;
 
 	if (!accessLevel && accessLevel !== "admin") {
 		redirect(`experiences/${experienceId}`);
 	}
-
-	console.log(experienceId);
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -48,13 +46,13 @@ export default async function AdminPage({
 								</Button>
 							</Link>
 							<span className="text-base sm:text-3xl font-bold text-gray-900 truncate w-full sm:w-auto">
-								Welcome back {user.name}
+								Welcome back {user.publicUser.name}
 							</span>
 						</div>
 					</div>
 				</div>
 				<div className="max-w-full sm:max-w-4xl mx-auto mb-3 sm:mb-4">
-					<AdminStats />
+					<AdminStats experienceId={experienceId} />
 				</div>
 				<div className="max-w-full sm:max-w-4xl mx-auto">
 					<Tabs defaultValue="pending">
