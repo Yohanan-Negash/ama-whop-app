@@ -4,11 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
-import {
-	deleteQuestion,
-	pushToForums,
-	getApprovedQuestions,
-} from "@/lib/actions";
 import { toast } from "sonner";
 import {
 	AlertDialog,
@@ -63,8 +58,11 @@ export default function ApprovedQuestions({
 			setLoading(true);
 			setError(null);
 			try {
-				const result = await getApprovedQuestions(experienceId);
-				if (result && "error" in result) setError(result.error);
+				const res = await fetch(
+					`/api/questions?experienceId=${experienceId}&status=APPROVED`,
+				);
+				const result = await res.json();
+				if (result?.error) setError(result.error);
 				else
 					setApprovedQuestions(
 						(
@@ -99,7 +97,13 @@ export default function ApprovedQuestions({
 		if (!questionToDelete) return;
 		setProcessingIds((prev) => [...prev, questionToDelete]);
 		try {
-			await deleteQuestion(questionToDelete);
+			const res = await fetch("/api/questions", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ action: "delete", id: questionToDelete }),
+			});
+			const result = await res.json();
+			if (result?.error) throw new Error(result.error);
 			setApprovedQuestions((prev) =>
 				prev.filter((q) => q.id !== questionToDelete),
 			);
@@ -118,7 +122,13 @@ export default function ApprovedQuestions({
 	async function handlePushToForums(id: string, questionText: string) {
 		setProcessingIds((prev) => [...prev, id]);
 		try {
-			await pushToForums(id, questionText);
+			const res = await fetch("/api/questions", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ action: "pushToForums", id, questionText }),
+			});
+			const result = await res.json();
+			if (result?.error) throw new Error(result.error);
 			setApprovedQuestions((prev) =>
 				prev.map((q) => (q.id === id ? { ...q, pushedToForum: true } : q)),
 			);

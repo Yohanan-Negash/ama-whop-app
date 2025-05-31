@@ -4,11 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Trash2 } from "lucide-react";
-import {
-	approveQuestion,
-	deleteQuestion,
-	getPendingQuestions,
-} from "@/lib/actions";
 import { toast } from "sonner";
 import {
 	AlertDialog,
@@ -52,8 +47,11 @@ export default function PendingQuestions({
 			setLoading(true);
 			setError(null);
 			try {
-				const result = await getPendingQuestions(experienceId);
-				if (result && "error" in result) setError(result.error);
+				const res = await fetch(
+					`/api/questions?experienceId=${experienceId}&status=PENDING`,
+				);
+				const result = await res.json();
+				if (result?.error) setError(result.error);
 				else
 					setPendingQuestions(
 						(
@@ -82,7 +80,13 @@ export default function PendingQuestions({
 	async function handleApprove(id: string) {
 		setProcessingIds((prev) => [...prev, id]);
 		try {
-			await approveQuestion(id);
+			const res = await fetch("/api/questions", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ action: "approve", id }),
+			});
+			const result = await res.json();
+			if (result?.error) throw new Error(result.error);
 			setPendingQuestions((prev) => prev.filter((q) => q.id !== id));
 			toast("Question approved ✅");
 		} catch (error) {
@@ -101,7 +105,13 @@ export default function PendingQuestions({
 		if (!questionToDelete) return;
 		setProcessingIds((prev) => [...prev, questionToDelete]);
 		try {
-			await deleteQuestion(questionToDelete);
+			const res = await fetch("/api/questions", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ action: "delete", id: questionToDelete }),
+			});
+			const result = await res.json();
+			if (result?.error) throw new Error(result.error);
 			setPendingQuestions((prev) =>
 				prev.filter((q) => q.id !== questionToDelete),
 			);

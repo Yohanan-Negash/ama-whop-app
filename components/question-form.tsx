@@ -2,8 +2,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-
-import { submitQuestion } from "@/lib/actions";
 import { toast } from "sonner";
 import { Send, Shield } from "lucide-react";
 
@@ -17,13 +15,14 @@ export default function QuestionForm({
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-
 		setIsSubmitting(true);
-		const formData = new FormData();
-		formData.append("question", question);
-
-		const result = await submitQuestion(experienceId, formData);
-		if (result && "error" in result) {
+		const res = await fetch("/api/questions", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ action: "submit", experienceId, question }),
+		});
+		const result = await res.json();
+		if (result?.error) {
 			toast(`Oops! ${result.error}`);
 		} else {
 			toast("Anonymous question sent! 🕵️");
