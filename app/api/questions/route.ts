@@ -96,11 +96,13 @@ export async function POST(req: NextRequest) {
 				},
 			});
 			const forumId = forum.createForum?.id;
-			if (!forumId)
+			if (!forumId) {
+				console.log("No forum ID");
 				return NextResponse.json(
 					{ error: "Could not create or find forum" },
 					{ status: 500 },
 				);
+			}
 			await whopApi.withUser(userToken.userId).createForumPost({
 				input: {
 					forumExperienceId: forumId,
@@ -117,6 +119,7 @@ export async function POST(req: NextRequest) {
 
 		return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 	} catch (error) {
+		console.log("Error", error);
 		return NextResponse.json(
 			{ error: (error as Error).message },
 			{ status: 500 },
