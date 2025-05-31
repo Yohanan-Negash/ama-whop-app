@@ -88,13 +88,15 @@ export async function POST(req: NextRequest) {
 			});
 			if (hasAccess.hasAccessToExperience.accessLevel !== "admin")
 				return NextResponse.json({ error: "Not authorized" }, { status: 403 });
-			const forum = await whopApi.withUser(userToken.userId).findOrCreateForum({
-				input: {
-					experienceId: questionObj.experienceId,
-					name: "AMA Forum",
-					whoCanPost: "admins",
-				},
-			});
+			const forum = await whopApi
+				.withUser(process.env.WHOP_AGENT_USER_ID)
+				.findOrCreateForum({
+					input: {
+						experienceId: questionObj.experienceId,
+						name: "AMA Forum",
+						whoCanPost: "admins",
+					},
+				});
 			const forumId = forum.createForum?.id;
 			if (!forumId) {
 				console.log("No forum ID");
@@ -103,7 +105,7 @@ export async function POST(req: NextRequest) {
 					{ status: 500 },
 				);
 			}
-			await whopApi.withUser(userToken.userId).createForumPost({
+			await whopApi.withUser(process.env.WHOP_AGENT_USER_ID).createForumPost({
 				input: {
 					forumExperienceId: forumId,
 					title: "Anonymous AMA Question",
