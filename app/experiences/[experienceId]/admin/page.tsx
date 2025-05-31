@@ -30,7 +30,7 @@ export default async function AdminPage({
 	const { accessLevel } = await result.hasAccessToExperience;
 
 	if (!accessLevel && accessLevel !== "admin") {
-		redirect("/");
+		redirect(`experiences/${experienceId}`);
 	}
 
 	console.log(experienceId);
