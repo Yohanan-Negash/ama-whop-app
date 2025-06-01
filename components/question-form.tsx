@@ -41,9 +41,9 @@ export default function QuestionForm({
 	};
 
 	return (
-		<div className="space-y-6 mt-2">
-			<form onSubmit={handleSubmit} className="space-y-6">
-				<div className="space-y-3">
+		<div className="space-y-4 mt-2">
+			<form onSubmit={handleSubmit} className="space-y-4">
+				<div className="space-y-2">
 					<Textarea
 						id="question"
 						name="question"
@@ -51,15 +51,15 @@ export default function QuestionForm({
 						onChange={handleTextChange}
 						placeholder="Ask anything... relationship advice, controversial opinions, personal struggles, business feedback, or whatever you're curious about but never felt safe asking publicly."
 						required
-						className="min-h-[140px] w-full text-base border-gray-200 focus:border-orange-500 focus:ring-orange-500 resize-none"
+						className="min-h-[80px] w-full text-sm border-gray-200 focus:border-orange-500 focus:ring-orange-500 resize-none"
 					/>
 					<div className="flex justify-between items-center">
-						<div className="flex items-center gap-2 text-sm text-gray-500">
-							<Shield className="h-4 w-4" />
+						<div className="flex items-center gap-2 text-xs text-gray-500">
+							<Shield className="h-3 w-3" />
 							<span>Completely anonymous</span>
 						</div>
 						<span
-							className={`text-sm ${charCount > MAX_CHARS * 0.8 ? "text-orange-500" : "text-gray-400"}`}
+							className={`text-xs ${charCount > MAX_CHARS * 0.8 ? "text-orange-500" : "text-gray-400"}`}
 						>
 							{charCount}/{MAX_CHARS}
 						</span>
@@ -69,13 +69,13 @@ export default function QuestionForm({
 				<Button
 					type="submit"
 					disabled={isSubmitting || question.trim() === ""}
-					className="w-full bg-orange-500 hover:bg-orange-600 text-white  p-6"
+					className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 text-sm"
 				>
 					{isSubmitting ? (
 						"Sending anonymously..."
 					) : (
 						<>
-							<Send className="h-4 w-4 mr-2" />
+							<Send className="h-3 w-3 mr-2" />
 							Send Anonymous Question
 						</>
 					)}
