@@ -49,7 +49,7 @@ export default function QuestionForm({
 						name="question"
 						value={question}
 						onChange={handleTextChange}
-						placeholder="Ask anything... relationship advice, controversial opinions, personal struggles, business feedback, or whatever you're curious about but never felt safe asking publicly."
+						placeholder="Ask anything..."
 						required
 						className="min-h-[80px] w-full text-sm border-gray-200 focus:border-orange-500 focus:ring-orange-500 resize-none"
 					/>
