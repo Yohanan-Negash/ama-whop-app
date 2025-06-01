@@ -13,17 +13,23 @@ export default function AdBanner() {
 			</div>
 			<div className="flex flex-col justify-center">
 				<span className="text-xs font-semibold text-orange-700 leading-tight">
-					Sample Brand Headline
+					Anonymous AMA App
 				</span>
 				<span className="text-[10px] text-gray-500 leading-tight">
-					Your brand, product, or service here
+					Get anonymous questions from your community
 				</span>
 			</div>
 			<button
 				type="button"
 				className="ml-2 px-2 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-xs font-medium whitespace-nowrap"
+				onClick={() =>
+					window.open(
+						"https://whop.com/apps/app_lAgURr4dDAesot/install/",
+						"_blank",
+					)
+				}
 			>
-				Learn More
+				Install Now
 			</button>
 			<button
 				type="button"
