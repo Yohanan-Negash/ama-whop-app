@@ -109,8 +109,9 @@ export async function POST(req: NextRequest) {
 			await whopApi.withUser(agentUserId).createForumPost({
 				input: {
 					forumExperienceId: forumId,
-					title: "Anonymous AMA Question",
+					title: "Somebody asked:",
 					content: `"${questionText}"`,
+					isMention: true,
 				},
 			});
 			await prisma.question.update({
