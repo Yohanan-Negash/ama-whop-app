@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
+import { useRouter } from "next/navigation";
 
 interface PendingQuestionsProps {
 	experienceId: string;
@@ -41,6 +42,7 @@ export default function PendingQuestions({
 	const [processingIds, setProcessingIds] = useState<string[]>([]);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
+	const router = useRouter();
 
 	useEffect(() => {
 		async function fetchQuestions() {
@@ -89,6 +91,7 @@ export default function PendingQuestions({
 			if (result?.error) throw new Error(result.error);
 			setPendingQuestions((prev) => prev.filter((q) => q.id !== id));
 			toast("Question approved ✅");
+			router.refresh();
 		} catch (error) {
 			toast("There was an error approving the question. Please try again.");
 		} finally {

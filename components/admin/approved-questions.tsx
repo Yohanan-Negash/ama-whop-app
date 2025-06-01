@@ -17,16 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
-
-// const mockApprovedQuestions = [
-// 	{
-// 		id: "101",
-// 		content:
-// 			"Your course is overpriced for the value it provides. Most of the content is just basic stuff you can find on YouTube for free.",
-// 		createdAt: "1 day ago",
-// 		pushedToForum: false,
-// 	},
-// ];
+import { useRouter } from "next/navigation";
 
 interface ApprovedQuestion {
 	id: string;
@@ -52,6 +43,7 @@ export default function ApprovedQuestions({
 	const [processingIds, setProcessingIds] = useState<string[]>([]);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
+	const router = useRouter();
 
 	useEffect(() => {
 		async function fetchQuestions() {
@@ -108,6 +100,7 @@ export default function ApprovedQuestions({
 				prev.filter((q) => q.id !== questionToDelete),
 			);
 			toast("Question deleted 🗑️");
+			router.refresh();
 		} catch (error) {
 			toast("There was an error deleting the question. Please try again.");
 		} finally {
@@ -133,6 +126,7 @@ export default function ApprovedQuestions({
 				prev.map((q) => (q.id === id ? { ...q, pushedToForum: true } : q)),
 			);
 			toast("The question has been pushed to Whop forums.");
+			router.refresh();
 		} catch (error) {
 			toast("There was an error pushing to forums. Please try again.");
 		} finally {
@@ -229,7 +223,9 @@ export default function ApprovedQuestions({
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogCancel className="bg-gray-400 hover:bg-gray-500">
+							Cancel
+						</AlertDialogCancel>
 						<AlertDialogAction
 							className="bg-red-500 hover:bg-red-600"
 							onClick={handleConfirmDelete}
