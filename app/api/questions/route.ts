@@ -31,62 +31,62 @@ export async function POST(req: NextRequest) {
 				data: { experienceId, question, status: "PENDING" },
 			});
 			// Send push notification to admin
-			try {
-				// Get experience details to find admin
-				const experience = await whopApi.getExperience({ experienceId });
+			// try {
+			// 	// Get experience details to find admin
+			// 	const experience = await whopApi.getExperience({ experienceId });
 
-				// Try to get company information from the experience
-				let adminUserId: string | null = null;
+			// 	// Try to get company information from the experience
+			// 	let adminUserId: string | null = null;
 
-				if (experience.experience?.company?.id) {
-					// If we have company ID, we could potentially find the owner/admin
-					// For now, let's use getCurrentUser to see if we can identify the admin
-					try {
-						const currentUser = await whopApi.getCurrentUser();
-						if (currentUser.viewer?.user?.id) {
-							// Check if current user has admin access to this experience
-							const accessCheck =
-								await whopApi.checkIfUserHasAccessToExperience({
-									userId: currentUser.viewer?.user?.id,
-									experienceId,
-								});
+			// 	if (experience.experience?.company?.id) {
+			// 		// If we have company ID, we could potentially find the owner/admin
+			// 		// For now, let's use getCurrentUser to see if we can identify the admin
+			// 		try {
+			// 			const currentUser = await whopApi.getCurrentUser();
+			// 			if (currentUser.viewer?.user?.id) {
+			// 				// Check if current user has admin access to this experience
+			// 				const accessCheck =
+			// 					await whopApi.checkIfUserHasAccessToExperience({
+			// 						userId: currentUser.viewer?.user?.id,
+			// 						experienceId,
+			// 					});
 
-							if (accessCheck.hasAccessToExperience.accessLevel === "admin") {
-								adminUserId = currentUser.viewer?.user?.id;
-							}
-						}
-					} catch (userError) {
-						console.log("Could not get current user for admin identification");
-					}
-				}
-				// Verify the admin user has access before sending notification
-				const result = await whopApi.checkIfUserHasAccessToExperience({
-					userId: adminUserId,
-					experienceId,
-				});
+			// 				if (accessCheck.hasAccessToExperience.accessLevel === "admin") {
+			// 					adminUserId = currentUser.viewer?.user?.id;
+			// 				}
+			// 			}
+			// 		} catch (userError) {
+			// 			console.log("Could not get current user for admin identification");
+			// 		}
+			// 	}
+			// 	// Verify the admin user has access before sending notification
+			// 	const result = await whopApi.checkIfUserHasAccessToExperience({
+			// 		userId: adminUserId,
+			// 		experienceId,
+			// 	});
 
-				const { accessLevel } = result.hasAccessToExperience;
-				if (accessLevel === "admin") {
-					const appUrl = `/experiences/${experienceId}/admin`;
-					if (adminUserId) {
-						await whopApi.sendNotification({
-							input: {
-								experienceId,
-								title: "New Anoynomous Question Received! 💭",
-								content: `"${question.length > 50 ? `${question.substring(0, 50)}...` : question}"`,
-								userIds: [adminUserId],
-								isMention: true,
-								link: appUrl,
-							},
-						});
-					} else {
-						console.log("Admin user ID could not be found for experience");
-					}
-				}
-			} catch (notificationError) {
-				// Don't fail the question creation if notification fails
-				console.error("Failed to send notification:", notificationError);
-			}
+			// 	const { accessLevel } = result.hasAccessToExperience;
+			// 	if (accessLevel === "admin") {
+			// 		const appUrl = `/experiences/${experienceId}/admin`;
+			// 		if (adminUserId) {
+			// 			await whopApi.sendNotification({
+			// 				input: {
+			// 					experienceId,
+			// 					title: "New Anoynomous Question Received! 💭",
+			// 					content: `"${question.length > 50 ? `${question.substring(0, 50)}...` : question}"`,
+			// 					userIds: [adminUserId],
+			// 					isMention: true,
+			// 					link: appUrl,
+			// 				},
+			// 			});
+			// 		} else {
+			// 			console.log("Admin user ID could not be found for experience");
+			// 		}
+			// 	}
+			// } catch (notificationError) {
+			// 	// Don't fail the question creation if notification fails
+			// 	console.error("Failed to send notification:", notificationError);
+			// }
 			return NextResponse.json(created);
 		}
 
