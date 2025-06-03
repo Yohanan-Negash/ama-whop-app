@@ -26,7 +26,7 @@ export async function AdminStats({ experienceId }: AdminStatsProps) {
 					<p className="text-4xl font-bold text-orange-400 mb-1">
 						{stats.pendingQuestions}
 					</p>
-					<p className="text-muted-foreground text-base">Pending Review</p>
+					<p className="text-muted-foreground text-base">Pending Questions</p>
 				</CardContent>
 			</Card>
 			<Card className="border border-border bg-card rounded-lg shadow-sm w-44 h-28 flex-shrink-0 flex flex-col justify-center">
@@ -34,7 +34,7 @@ export async function AdminStats({ experienceId }: AdminStatsProps) {
 					<p className="text-4xl font-bold text-green-500 mb-1">
 						{stats.approvedQuestions}
 					</p>
-					<p className="text-muted-foreground text-base">Approved</p>
+					<p className="text-muted-foreground text-base">Answered</p>
 				</CardContent>
 			</Card>
 		</div>

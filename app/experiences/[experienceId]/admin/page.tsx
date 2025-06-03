@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AdminStats } from "@/components/admin/admin-stats";
 import PendingQuestions from "@/components/admin/pending-questions";
-import ApprovedQuestions from "@/components/admin/approved-questions";
+import AnsweredQuestions from "@/components/admin/approved-questions";
 import { whopApi } from "@/lib/whop-api";
 import { verifyUserToken } from "@whop/api";
 import { headers } from "next/headers";
@@ -64,10 +64,10 @@ export default async function AdminPage({
 								Pending
 							</TabsTrigger>
 							<TabsTrigger
-								value="approved"
+								value="answered"
 								className="relative flex-1 min-w-[100px] sm:min-w-[120px] px-2 sm:px-6 py-2 text-xs sm:text-base font-semibold rounded-md transition-all cursor-pointer data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:border-b-4 data-[state=active]:border-orange-400 data-[state=inactive]:bg-orange-50 data-[state=inactive]:text-muted-foreground hover:bg-orange-100"
 							>
-								Approved
+								Answered
 							</TabsTrigger>
 						</TabsList>
 						<TabsContent value="pending">
@@ -75,11 +75,11 @@ export default async function AdminPage({
 								<Card className="border-0 shadow-sm bg-card rounded-md p-1 sm:p-2 w-full">
 									<CardHeader className="pb-2">
 										<CardTitle className="text-sm sm:text-lg text-foreground text-center">
-											Pending Anonymous Questions
+											Questions from your community
 										</CardTitle>
 										<div className="text-center text-xs sm:text-sm text-muted-foreground">
-											Review and approve or delete questions submitted by users.
-											Only approved questions will be visible to the public.
+											Answer questions from your community. Your responses will
+											automatically create engaging forum posts for discussion.
 										</div>
 									</CardHeader>
 									<CardContent className="p-0">
@@ -88,20 +88,20 @@ export default async function AdminPage({
 								</Card>
 							</ScrollArea>
 						</TabsContent>
-						<TabsContent value="approved">
+						<TabsContent value="answered">
 							<ScrollArea className="h-[65vh] min-h-[400px] rounded-md border-none">
 								<Card className="border-0 shadow-sm bg-card rounded-md p-1 sm:p-2 w-full">
 									<CardHeader className="pb-2">
 										<CardTitle className="text-sm sm:text-lg text-foreground text-center">
-											Approved Anonymous Questions
+											Your Q&A responses
 										</CardTitle>
 										<div className="text-center text-xs sm:text-sm text-muted-foreground">
-											These questions have been approved and can be visible to
-											your community by creating a forum.
+											Your answered questions and the forum discussions they've
+											sparked in your community.
 										</div>
 									</CardHeader>
 									<CardContent className="p-0">
-										<ApprovedQuestions experienceId={experienceId} />
+										<AnsweredQuestions experienceId={experienceId} />
 									</CardContent>
 								</Card>
 							</ScrollArea>

@@ -13,7 +13,10 @@ model Question {
 	experienceId String
 	question String 
 	status QuestionStatus @default(PENDING)
+	answer String?
+	forumPostId String?
 	createdAt DateTime @default(now())
+	answeredAt DateTime?
 	pushedToForum Boolean @default(false)
 }
 

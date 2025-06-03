@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2 } from "lucide-react";
+import { ExternalLink, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
 	AlertDialog,
@@ -19,24 +19,26 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 
-interface ApprovedQuestion {
-	id: string;
-	question: string;
-	createdAt: string;
-	pushedToForum: boolean;
-}
-
-interface ApprovedQuestionsProps {
+interface AnsweredQuestionsProps {
 	experienceId: string;
 	withScrollArea?: boolean;
 }
 
-export default function ApprovedQuestions({
+interface AnsweredQuestion {
+	id: string;
+	question: string;
+	answer: string;
+	createdAt: string;
+	answeredAt?: string;
+	forumPostId?: string;
+}
+
+export default function AnsweredQuestions({
 	experienceId,
 	withScrollArea,
-}: ApprovedQuestionsProps) {
-	const [approvedQuestions, setApprovedQuestions] = useState<
-		ApprovedQuestion[]
+}: AnsweredQuestionsProps) {
+	const [answeredQuestions, setAnsweredQuestions] = useState<
+		AnsweredQuestion[]
 	>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -56,24 +58,32 @@ export default function ApprovedQuestions({
 				const result = await res.json();
 				if (result?.error) setError(result.error);
 				else
-					setApprovedQuestions(
+					setAnsweredQuestions(
 						(
 							result as {
 								id: string;
 								question: string;
+								answer?: string;
 								createdAt: string | Date;
-								pushedToForum: boolean;
+								answeredAt?: string | Date;
+								forumPostId?: string;
 							}[]
 						).map((q) => ({
 							...q,
+							answer: q.answer || "No answer provided",
 							createdAt:
 								typeof q.createdAt === "string"
 									? q.createdAt
 									: q.createdAt.toISOString(),
+							answeredAt: q.answeredAt
+								? typeof q.answeredAt === "string"
+									? q.answeredAt
+									: q.answeredAt.toISOString()
+								: undefined,
 						})),
 					);
 			} catch (err) {
-				setError("Failed to load questions");
+				setError("Failed to load answered questions");
 			}
 			setLoading(false);
 		}
@@ -85,7 +95,7 @@ export default function ApprovedQuestions({
 		setDeleteDialogOpen(true);
 	}
 
-	async function handleConfirmDelete() {
+	async function confirmDelete() {
 		if (!questionToDelete) return;
 		setProcessingIds((prev) => [...prev, questionToDelete]);
 		try {
@@ -96,10 +106,10 @@ export default function ApprovedQuestions({
 			});
 			const result = await res.json();
 			if (result?.error) throw new Error(result.error);
-			setApprovedQuestions((prev) =>
+			setAnsweredQuestions((prev) =>
 				prev.filter((q) => q.id !== questionToDelete),
 			);
-			toast("Question deleted 🗑️");
+			toast("Question deleted ✅");
 			router.refresh();
 		} catch (error) {
 			toast("There was an error deleting the question. Please try again.");
@@ -112,93 +122,96 @@ export default function ApprovedQuestions({
 		}
 	}
 
-	async function handlePushToForums(id: string, questionText: string) {
-		setProcessingIds((prev) => [...prev, id]);
-		try {
-			const res = await fetch("/api/questions", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ action: "pushToForums", id, questionText }),
-			});
-			const result = await res.json();
-			if (result?.error) throw new Error(result.error);
-			setApprovedQuestions((prev) =>
-				prev.map((q) => (q.id === id ? { ...q, pushedToForum: true } : q)),
-			);
-			toast("The question has been pushed to Whop forums.");
-			router.refresh();
-		} catch (error) {
-			toast("There was an error pushing to forums. Please try again.");
-		} finally {
-			setProcessingIds((prev) => prev.filter((pId) => pId !== id));
-		}
+	function handleViewForumPost(forumPostId: string) {
+		// Open the forum post in a new tab
+		window.open(`/forums/post/${forumPostId}`, "_blank");
 	}
 
 	if (loading) {
-		return <div className="text-center py-12 text-gray-500">Loading...</div>;
+		return (
+			<div className="flex justify-center py-8">
+				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+			</div>
+		);
 	}
 
 	if (error) {
-		return <div className="text-center py-12 text-red-500">{error}</div>;
+		return (
+			<div className="text-center py-8 text-red-600">
+				<p>Error: {error}</p>
+			</div>
+		);
 	}
 
-	if (approvedQuestions.length === 0) {
+	if (answeredQuestions.length === 0) {
 		return (
-			<div className="text-center py-12">
-				<div className="text-6xl mb-4">✅</div>
-				<p className="text-gray-600 text-lg">No approved questions yet.</p>
+			<div className="text-center py-8 text-muted-foreground">
+				<p>No answered questions yet.</p>
 			</div>
 		);
 	}
 
 	const content = (
 		<div className="space-y-2 sm:space-y-3">
-			{approvedQuestions.map((question) => (
+			{answeredQuestions.map((question) => (
 				<Card
 					key={question.id}
-					className="border bg-card border-orange-200 rounded-lg shadow-sm px-2 sm:px-4 py-2 sm:py-3 w-full max-w-full sm:max-w-[700px] mx-auto"
+					className="border bg-card border-green-200 rounded-lg shadow-sm px-2 sm:px-4 py-2 sm:py-3 w-full max-w-full sm:max-w-[700px] mx-auto"
 				>
 					<CardContent className="p-0">
-						<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-							<div className="flex-1 min-w-0">
-								<p className="font-semibold text-foreground text-sm sm:text-base mb-1 break-words">
-									{question.question}
-								</p>
-								<span className="block text-xs text-muted-foreground mt-0.5">
-									{formatDistanceToNow(new Date(question.createdAt), {
-										addSuffix: true,
-									})}
-								</span>
+						<div className="space-y-3">
+							<div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+								<div className="flex-1 min-w-0">
+									<p className="font-semibold text-foreground text-sm sm:text-base mb-1 break-words">
+										Q: {question.question}
+									</p>
+									<p className="text-sm text-muted-foreground mb-2 break-words">
+										A: {question.answer}
+									</p>
+									<div className="flex flex-col sm:flex-row gap-2 text-xs text-muted-foreground">
+										<span>
+											Asked{" "}
+											{formatDistanceToNow(new Date(question.createdAt), {
+												addSuffix: true,
+											})}
+										</span>
+										{question.answeredAt && (
+											<>
+												<span className="hidden sm:inline">•</span>
+												<span>
+													Answered{" "}
+													{formatDistanceToNow(new Date(question.answeredAt), {
+														addSuffix: true,
+													})}
+												</span>
+											</>
+										)}
+									</div>
+								</div>
+								<div className="flex gap-2 mt-2 sm:mt-0">
+									<Button
+										size="icon"
+										onClick={() => handleDeleteClick(question.id)}
+										disabled={processingIds.includes(question.id)}
+										className="border-red-300 text-red-600 hover:bg-red-200 hover:text-red-700 rounded-full p-2 h-9 w-9 sm:h-8 sm:w-8 opacity-80 hover:opacity-100"
+									>
+										<Trash2 className="h-4 w-4" />
+									</Button>
+								</div>
 							</div>
-							<div className="flex gap-2 mt-2 sm:mt-0 ml-0 sm:ml-4 self-end sm:self-center">
-								<Button
-									size="icon"
-									onClick={() => handleDeleteClick(question.id)}
-									disabled={processingIds.includes(question.id)}
-									className="border-red-300 text-red-600 hover:bg-red-200 hover:text-red-700 rounded-full p-2 h-9 w-9 sm:h-8 sm:w-8 opacity-80 hover:opacity-100"
-								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
-								<Button
-									size="sm"
-									onClick={() =>
-										handlePushToForums(question.id, question.question)
-									}
-									disabled={
-										processingIds.includes(question.id) ||
-										question.pushedToForum
-									}
-									className={`bg-orange-500 hover:bg-orange-600 text-white rounded px-3 py-2 text-xs sm:text-sm font-medium transition-colors opacity-90 hover:opacity-100 min-w-[110px] ${
-										question.pushedToForum
-											? "bg-gray-200 text-gray-500 cursor-not-allowed"
-											: ""
-									}`}
-								>
-									{question.pushedToForum
-										? "Posted to Forums"
-										: "Create Forum Post"}
-								</Button>
-							</div>
+							{/* <div className="flex justify-center">
+								{question.forumPostId && (
+									<Button
+										onClick={() =>
+											handleViewForumPost(question.forumPostId as string)
+										}
+										className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-2 text-sm font-medium transition-colors opacity-90 hover:opacity-100 flex items-center gap-2"
+									>
+										<ExternalLink className="h-4 w-4" />
+										View Forum Post
+									</Button>
+								)}
+							</div> */}
 						</div>
 					</CardContent>
 				</Card>
@@ -206,20 +219,20 @@ export default function ApprovedQuestions({
 		</div>
 	);
 
+	if (withScrollArea) {
+		return <ScrollArea className="h-full">{content}</ScrollArea>;
+	}
+
 	return (
 		<>
-			{withScrollArea && approvedQuestions.length > 4 ? (
-				<ScrollArea className="max-h-[600px] w-full pr-2">{content}</ScrollArea>
-			) : (
-				content
-			)}
+			{content}
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Question?</AlertDialogTitle>
+						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This will permanently delete this anonymous question. This action
-							cannot be undone.
+							This action cannot be undone. This will permanently delete the
+							question and its answer. The forum post will remain.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -227,10 +240,10 @@ export default function ApprovedQuestions({
 							Cancel
 						</AlertDialogCancel>
 						<AlertDialogAction
+							onClick={confirmDelete}
 							className="bg-red-500 hover:bg-red-600"
-							onClick={handleConfirmDelete}
 						>
-							Delete Question
+							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

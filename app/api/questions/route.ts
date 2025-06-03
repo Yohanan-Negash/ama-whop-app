@@ -8,7 +8,8 @@ export async function POST(req: NextRequest) {
 	const agentUserId = process.env.WHOP_AGENT_USER_ID;
 	if (!agentUserId) throw new Error("WHOP_AGENT_USER_ID missing");
 
-	const { action, experienceId, id, question, questionText } = await req.json();
+	const { action, experienceId, id, question, questionText, answer } =
+		await req.json();
 	try {
 		const headersList = req.headers;
 		const userToken = await verifyUserToken(headersList);
@@ -33,8 +34,11 @@ export async function POST(req: NextRequest) {
 		}
 
 		if (action === "approve") {
-			if (!id)
-				return NextResponse.json({ error: "Missing id" }, { status: 400 });
+			if (!id || !answer)
+				return NextResponse.json(
+					{ error: "Missing id or answer" },
+					{ status: 400 },
+				);
 			const questionObj = await prisma.question.findUnique({ where: { id } });
 			if (!questionObj)
 				return NextResponse.json(
@@ -47,9 +51,44 @@ export async function POST(req: NextRequest) {
 			});
 			if (hasAccess.hasAccessToExperience.accessLevel !== "admin")
 				return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+
+			// Create forum post
+			const forum = await whopApi.withUser(agentUserId).findOrCreateForum({
+				input: {
+					experienceId: questionObj.experienceId,
+					name: "AMA Forum",
+					whoCanPost: "admins",
+				},
+			});
+			const forumId = forum.createForum?.id;
+			if (!forumId) {
+				return NextResponse.json(
+					{ error: "Could not create or find forum" },
+					{ status: 500 },
+				);
+			}
+
+			const forumPost = await whopApi.withUser(agentUserId).createForumPost({
+				input: {
+					forumExperienceId: forumId,
+					title: `Someone asked: ${questionObj.question}`,
+					content: `My answer: ${answer}\n\nWhat do you think? 💭`,
+					isMention: true,
+				},
+			});
+
+			const forumPostId = forumPost.createForumPost?.id;
+
+			// Update question with answer
 			const approved = await prisma.question.update({
 				where: { id },
-				data: { status: "APPROVED" },
+				data: {
+					status: "APPROVED",
+					answer,
+					forumPostId: forumPostId || null,
+					answeredAt: new Date(),
+					pushedToForum: true,
+				},
 			});
 			return NextResponse.json(approved);
 		}
@@ -100,7 +139,6 @@ export async function POST(req: NextRequest) {
 			});
 			const forumId = forum.createForum?.id;
 			if (!forumId) {
-				console.log("No forum ID");
 				return NextResponse.json(
 					{ error: "Could not create or find forum" },
 					{ status: 500 },

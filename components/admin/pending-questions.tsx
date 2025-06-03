@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Trash2, Send } from "lucide-react";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+import { useRouter } from "next/navigation";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -16,8 +19,6 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDistanceToNow } from "date-fns";
-import { useRouter } from "next/navigation";
 
 interface PendingQuestionsProps {
 	experienceId: string;
@@ -40,6 +41,7 @@ export default function PendingQuestions({
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [processingIds, setProcessingIds] = useState<string[]>([]);
+	const [answers, setAnswers] = useState<Record<string, string>>({});
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 	const router = useRouter();
@@ -61,7 +63,6 @@ export default function PendingQuestions({
 								id: string;
 								question: string;
 								createdAt: string | Date;
-								pushedToForum: boolean;
 							}[]
 						).map((q) => ({
 							...q,
@@ -79,21 +80,33 @@ export default function PendingQuestions({
 		fetchQuestions();
 	}, [experienceId]);
 
-	async function handleApprove(id: string) {
+	async function handleAnswer(id: string) {
+		const answer = answers[id]?.trim();
+		if (!answer) {
+			toast("Please provide an answer");
+			return;
+		}
+
 		setProcessingIds((prev) => [...prev, id]);
 		try {
 			const res = await fetch("/api/questions", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ action: "approve", id }),
+				body: JSON.stringify({ action: "approve", id, answer }),
 			});
 			const result = await res.json();
 			if (result?.error) throw new Error(result.error);
 			setPendingQuestions((prev) => prev.filter((q) => q.id !== id));
-			toast("Question approved ✅");
+			setAnswers((prev) => {
+				const updated = { ...prev };
+				delete updated[id];
+				return updated;
+			});
+			toast("Response shared! Your Q&A is now live in the forum ✨");
 			router.refresh();
 		} catch (error) {
-			toast("There was an error approving the question. Please try again.");
+			console.log("weird error", error);
+			toast("There was an error answering the question. Please try again.");
 		} finally {
 			setProcessingIds((prev) => prev.filter((pId) => pId !== id));
 		}
@@ -104,7 +117,7 @@ export default function PendingQuestions({
 		setDeleteDialogOpen(true);
 	}
 
-	async function handleConfirmDelete() {
+	async function confirmDelete() {
 		if (!questionToDelete) return;
 		setProcessingIds((prev) => [...prev, questionToDelete]);
 		try {
@@ -118,7 +131,8 @@ export default function PendingQuestions({
 			setPendingQuestions((prev) =>
 				prev.filter((q) => q.id !== questionToDelete),
 			);
-			toast("The question has been permanently deleted.");
+			toast("Question deleted ✅");
+			router.refresh();
 		} catch (error) {
 			toast("There was an error deleting the question. Please try again.");
 		} finally {
@@ -131,18 +145,25 @@ export default function PendingQuestions({
 	}
 
 	if (loading) {
-		return <div className="text-center py-12 text-gray-500">Loading...</div>;
+		return (
+			<div className="flex justify-center py-8">
+				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+			</div>
+		);
 	}
 
 	if (error) {
-		return <div className="text-center py-12 text-red-500">{error}</div>;
+		return (
+			<div className="text-center py-8 text-red-600">
+				<p>Error: {error}</p>
+			</div>
+		);
 	}
 
 	if (pendingQuestions.length === 0) {
 		return (
-			<div className="text-center py-12">
-				<div className="text-6xl mb-4">🎉</div>
-				<p className="text-gray-600 text-lg">No pending questions to review.</p>
+			<div className="text-center py-8 text-muted-foreground">
+				<p>No new questions yet. Your community will start asking soon! 💭</p>
 			</div>
 		);
 	}
@@ -155,18 +176,18 @@ export default function PendingQuestions({
 					className="border bg-card border-orange-200 rounded-lg shadow-sm px-2 sm:px-4 py-2 sm:py-3 w-full max-w-full sm:max-w-[700px] mx-auto"
 				>
 					<CardContent className="p-0">
-						<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-							<div className="flex-1 min-w-0">
-								<p className="font-semibold text-foreground text-sm sm:text-base mb-1 break-words">
-									{question.question}
-								</p>
-								<span className="block text-xs text-muted-foreground mt-0.5">
-									{formatDistanceToNow(new Date(question.createdAt), {
-										addSuffix: true,
-									})}
-								</span>
-							</div>
-							<div className="flex gap-2 mt-2 sm:mt-0 ml-0 sm:ml-4 self-end sm:self-center">
+						<div className="space-y-3">
+							<div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+								<div className="flex-1 min-w-0">
+									<p className="font-semibold text-foreground text-sm sm:text-base mb-1 break-words">
+										{question.question}
+									</p>
+									<span className="block text-xs text-muted-foreground mt-0.5">
+										{formatDistanceToNow(new Date(question.createdAt), {
+											addSuffix: true,
+										})}
+									</span>
+								</div>
 								<Button
 									size="icon"
 									onClick={() => handleDeleteClick(question.id)}
@@ -175,13 +196,30 @@ export default function PendingQuestions({
 								>
 									<Trash2 className="h-4 w-4" />
 								</Button>
-								<Button
-									size="sm"
-									onClick={() => handleApprove(question.id)}
+							</div>
+							<div className="flex flex-col sm:flex-row gap-2">
+								<Input
+									placeholder="Share your thoughts..."
+									value={answers[question.id] || ""}
+									onChange={(e) =>
+										setAnswers((prev) => ({
+											...prev,
+											[question.id]: e.target.value,
+										}))
+									}
+									className="flex-1 border border-amber-500"
 									disabled={processingIds.includes(question.id)}
-									className="bg-green-500 hover:bg-green-600 text-white rounded px-3 py-2 text-xs sm:text-sm font-medium transition-colors opacity-90 hover:opacity-100 min-w-[110px]"
+								/>
+								<Button
+									onClick={() => handleAnswer(question.id)}
+									disabled={
+										processingIds.includes(question.id) ||
+										!answers[question.id]?.trim()
+									}
+									className="bg-green-500 hover:bg-green-600 text-white rounded px-4 py-2 text-sm font-medium transition-colors opacity-90 hover:opacity-100 flex items-center gap-2 min-w-[100px]"
 								>
-									Add to Approved
+									<Send className="h-4 w-4" />
+									Answer
 								</Button>
 							</div>
 						</div>
@@ -191,20 +229,20 @@ export default function PendingQuestions({
 		</div>
 	);
 
+	if (withScrollArea) {
+		return <ScrollArea className="h-full">{content}</ScrollArea>;
+	}
+
 	return (
 		<>
-			{withScrollArea && pendingQuestions.length > 4 ? (
-				<ScrollArea className="max-h-[400px] w-full pr-2">{content}</ScrollArea>
-			) : (
-				content
-			)}
+			{content}
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Question?</AlertDialogTitle>
+						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This will permanently delete this anonymous question. This action
-							cannot be undone.
+							This action cannot be undone. This will permanently delete the
+							question.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -212,10 +250,10 @@ export default function PendingQuestions({
 							Cancel
 						</AlertDialogCancel>
 						<AlertDialogAction
+							onClick={confirmDelete}
 							className="bg-red-500 hover:bg-red-600"
-							onClick={handleConfirmDelete}
 						>
-							Delete Question
+							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
