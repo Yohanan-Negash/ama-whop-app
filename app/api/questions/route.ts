@@ -30,6 +30,37 @@ export async function POST(req: NextRequest) {
 			const created = await prisma.question.create({
 				data: { experienceId, question, status: "PENDING" },
 			});
+			// Send push notification to admin
+			try {
+				const result = await whopApi.checkIfUserHasAccessToExperience({
+					userId: agentUserId,
+					experienceId,
+				});
+
+				const { accessLevel } = result.hasAccessToExperience;
+
+				// Only send notification if agent user is admin
+				if (accessLevel === "admin") {
+					const adminUserId = agentUserId;
+
+					// Create a link to the admin panel where they can see pending questions
+					const appUrl = `/experiences/${experienceId}/admin`;
+
+					await whopApi.sendNotification({
+						input: {
+							experienceId,
+							title: "New Anoynomous Question Received! 💭",
+							content: `"${question.length > 50 ? `${question.substring(0, 50)}...` : question}"`,
+							userIds: [adminUserId],
+							isMention: true,
+							link: appUrl,
+						},
+					});
+				}
+			} catch (notificationError) {
+				// Don't fail the question creation if notification fails
+				console.error("Failed to send notification:", notificationError);
+			}
 			return NextResponse.json(created);
 		}
 

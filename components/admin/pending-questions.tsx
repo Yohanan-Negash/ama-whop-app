@@ -64,13 +64,19 @@ export default function PendingQuestions({
 								question: string;
 								createdAt: string | Date;
 							}[]
-						).map((q) => ({
-							...q,
-							createdAt:
-								typeof q.createdAt === "string"
-									? q.createdAt
-									: q.createdAt.toISOString(),
-						})),
+						)
+							.map((q) => ({
+								...q,
+								createdAt:
+									typeof q.createdAt === "string"
+										? q.createdAt
+										: q.createdAt.toISOString(),
+							}))
+							.sort(
+								(a, b) =>
+									new Date(b.createdAt).getTime() -
+									new Date(a.createdAt).getTime(),
+							),
 					);
 			} catch (err) {
 				setError("Failed to load questions");
