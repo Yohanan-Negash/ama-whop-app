@@ -30,63 +30,63 @@ export async function POST(req: NextRequest) {
 			const created = await prisma.question.create({
 				data: { experienceId, question, status: "PENDING" },
 			});
-			// Send push notification to admin
-			// try {
-			// 	// Get experience details to find admin
-			// 	const experience = await whopApi.getExperience({ experienceId });
 
-			// 	// Try to get company information from the experience
-			// 	let adminUserId: string | null = null;
+			try {
+				const users = await whopApi.listUsersForExperience({
+					experienceId: experienceId,
+				});
 
-			// 	if (experience.experience?.company?.id) {
-			// 		// If we have company ID, we could potentially find the owner/admin
-			// 		// For now, let's use getCurrentUser to see if we can identify the admin
-			// 		try {
-			// 			const currentUser = await whopApi.getCurrentUser();
-			// 			if (currentUser.viewer?.user?.id) {
-			// 				// Check if current user has admin access to this experience
-			// 				const accessCheck =
-			// 					await whopApi.checkIfUserHasAccessToExperience({
-			// 						userId: currentUser.viewer?.user?.id,
-			// 						experienceId,
-			// 					});
+				const allUsers = users.publicExperience.users?.nodes || [];
 
-			// 				if (accessCheck.hasAccessToExperience.accessLevel === "admin") {
-			// 					adminUserId = currentUser.viewer?.user?.id;
-			// 				}
-			// 			}
-			// 		} catch (userError) {
-			// 			console.log("Could not get current user for admin identification");
-			// 		}
-			// 	}
-			// 	// Verify the admin user has access before sending notification
-			// 	const result = await whopApi.checkIfUserHasAccessToExperience({
-			// 		userId: adminUserId,
-			// 		experienceId,
-			// 	});
+				// console.log("Here are all the users", allUsers);
 
-			// 	const { accessLevel } = result.hasAccessToExperience;
-			// 	if (accessLevel === "admin") {
-			// 		const appUrl = `/experiences/${experienceId}/admin`;
-			// 		if (adminUserId) {
-			// 			await whopApi.sendNotification({
-			// 				input: {
-			// 					experienceId,
-			// 					title: "New Anoynomous Question Received! 💭",
-			// 					content: `"${question.length > 50 ? `${question.substring(0, 50)}...` : question}"`,
-			// 					userIds: [adminUserId],
-			// 					isMention: true,
-			// 					link: appUrl,
-			// 				},
-			// 			});
-			// 		} else {
-			// 			console.log("Admin user ID could not be found for experience");
-			// 		}
-			// 	}
-			// } catch (notificationError) {
-			// 	// Don't fail the question creation if notification fails
-			// 	console.error("Failed to send notification:", notificationError);
-			// }
+				const adminUsers = [];
+
+				// console.log("All users with access levels:");
+				for (const user of allUsers) {
+					if (!user) continue;
+					const result = await whopApi.checkIfUserHasAccessToExperience({
+						userId: user.id,
+						experienceId,
+					});
+
+					const { accessLevel } = result.hasAccessToExperience;
+
+					// console.log(
+					// 	`User ${user.id} (${user.username}) accessLevel: ${accessLevel}${accessLevel === "admin" ? " [ADMIN]" : ""}`,
+					// );
+
+					if (accessLevel === "admin") {
+						adminUsers.push({
+							id: user.id,
+							username: user.username,
+							accessLevel,
+						});
+					}
+				}
+
+				const notifiedUserIds = adminUsers.map((user) => user.id);
+
+				for (const user of adminUsers) {
+					if (user.accessLevel !== "admin") {
+						console.warn(
+							`WARNING: User ${user.id} (${user.username}) is in adminUsers but does not have admin accessLevel!`,
+						);
+					}
+				}
+
+				await whopApi.sendPushNotification({
+					input: {
+						experienceId,
+						title: "New Anoynomous Question Received! 💭",
+						content: "You have a new question waiting in your dashboard",
+						userIds: notifiedUserIds,
+						isMention: true,
+					},
+				});
+			} catch (error) {
+				console.log("there is some error", error);
+			}
 			return NextResponse.json(created);
 		}
 

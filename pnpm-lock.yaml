@@ -33,8 +33,8 @@ importers:
         specifier: 0.0.1-canary.111
         version: 0.0.1-canary.111(react@19.1.0)
       '@whop/api':
-        specifier: ^0.0.21-canary.4
-        version: 0.0.21-canary.5
+        specifier: ^0.0.21
+        version: 0.0.21
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -807,8 +807,8 @@ packages:
   '@whop-apps/typed-transport@0.0.1-canary.111':
     resolution: {integrity: sha512-jvs9C11P4VGhNgREk4JDnFGSBeSw+GS2ORvnZJgS0o2AxBevB8nAKPElRArEEYrPFmNasoi5t0KcF5EkEoJ+wA==}
 
-  '@whop/api@0.0.21-canary.5':
-    resolution: {integrity: sha512-DXAMOdxD7DbgTeeZgUddJgmHGFoZ0mqlIHmFZYQ1nA9jusxp50YBfYrygMKqVaJRY4Xi9B8Z96a7lw+lApoxjg==}
+  '@whop/api@0.0.21':
+    resolution: {integrity: sha512-E5+lYDxlVq3SPAs8aP3Xim42tAdsXbPxgHicddEZH78+wnft4qj/6CeBsyjUyYdhfptE71pBM+hIi0jlNfe12w==}
     engines: {node: 22.x, pnpm: 9.15.9}
 
   aria-hidden@1.2.6:
@@ -1868,7 +1868,7 @@ snapshots:
     dependencies:
       zod: 3.25.20
 
-  '@whop/api@0.0.21-canary.5':
+  '@whop/api@0.0.21':
     dependencies:
       graphql: 16.11.0
       graphql-request: 7.2.0(graphql@16.11.0)
