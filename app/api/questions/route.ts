@@ -74,14 +74,16 @@ export async function POST(req: NextRequest) {
 						);
 					}
 				}
-
+				const { experience } = await whopApi.getExperience({ experienceId });
+				const companyId = experience.company.id;
 				await whopApi.sendPushNotification({
 					input: {
-						experienceId,
+						companyTeamId: companyId,
 						title: "New Anoynomous Question Received! 💭",
-						content: "You have a new question waiting in your dashboard",
+						content: "You have a new question waiting in your ama dashboard",
 						userIds: notifiedUserIds,
 						isMention: true,
+						link: `https://whop.com/experiences/${experienceId}`,
 					},
 				});
 			} catch (error) {
